@@ -39,17 +39,15 @@
 			this.bind(closeDom);
 		}
 		CountDown.prototype.init = function(timeArr){
-			// console.log(timeArr);
-			this.hour = timeArr[0] || 0,
-			this.min = timeArr[1] || 0,
+			this.hour = timeArr[0] || 0;
+			this.countHour = timeArr[0];
+			this.min = timeArr[1] || 0;
 			this.sec = timeArr[2] || 0;
 		};
 
 		CountDown.prototype.setTime = function(){
 			var _this = this;
-			console.log(2);
 			_this.clock = setInterval(function(){
-				console.log(1);
 				var sec = _this.sec,
 						min = _this.min,
 						hour = _this.hour;
@@ -61,7 +59,7 @@
 								sec = 59;
 								min = 59;
 								if(hour === 0){
-									hour = 1
+									hour = _this.countHour + 1;
 								}else{
 									hour -- ;
 								}
@@ -82,9 +80,13 @@
 			clearInterval(_this.clock);
 		}
 		CountDown.prototype.render = function(){
-			this.domHour.innerText = this.hour;
-			this.domMin.innerText = this.min;
-			this.domSec.innerText = this.sec;
+			this.domHour.innerText = this.toFixed(this.hour);
+			this.domMin.innerText = this.toFixed(this.min);
+			this.domSec.innerText = this.toFixed(this.sec);
+		}
+
+		CountDown.prototype.toFixed = function(n){
+			return (n+'').length === 1?('0'+n):(n+'');
 		}
 
 		CountDown.prototype.bind = function(dom){
@@ -94,12 +96,13 @@
 			})
 
 		}
+
     var timeDomArr = [].slice.call(document.querySelectorAll('.clock')),
         close = document.querySelectorAll('.close')[0];
-		new CountDown( timeDomArr,[1,0,3],close )
+		new CountDown( timeDomArr,[0,0,3],close )
 
 
-
+    //原始方法：
 		// function setTime(hour,min,sec){
 		// 	var hour = hour || 0,
 		// 			min = min || 0,
