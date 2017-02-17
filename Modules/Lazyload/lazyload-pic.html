@@ -57,44 +57,62 @@
 </ul>
 <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.js"></script>
 <script type="text/javascript">
-function Exposure($target,callback){
-  this.$target = $target;
-  this.callback = callback;
-  this.bind();
-  this.check();
-}
-
-Exposure.prototype.bind = function(){
-  var _this = this;
-  $(window).on('scroll',function(){
-    _this.check();
-  })
-};
-Exposure.prototype.check = function(){
-  if(this.isShow(this.$target)){
-    this.callback(this.$target);
-  }
-};
-Exposure.prototype.isShow = function(){
-  var windowHeight = $(window).height(),
-      scrollTop = $(window).scrollTop(),
-      offsetTop = this.$target.offset().top,
-      nodeHeight = this.$target.height();
-  if(windowHeight + scrollTop > offsetTop && scrollTop < nodeHeight + offsetTop){
-    return true;
-  }else {
-    return false;
-  }
-};
 var Lazy = (function(){
+  function Exposure($target,callback,boolean){
+    this.$target = $target;
+    this.callback = callback;
+    this.one = true;
+    this.bind();
+    this.check(boolean); //false为只执行一次
+  }
+
+  Exposure.prototype.bind = function(){
+    var _this = this;
+    var clock;
+    if(clock) clearTimeout(clock);
+    clock=setTimeout(function(){
+      $(window).on('scroll',function(){
+        _this.check();
+      })
+    },300);   
+  };
+  Exposure.prototype.check = function(boolean){
+    if(boolean){
+      if(this.isShow(this.$target)){
+        this.callback(this.$target);
+      }
+    }else{
+      if(this.isShow(this.$target) && this.one){
+        this.callback(this.$target);
+        this.one = false;
+      }else{
+        return;
+      }
+    }
+  };
+
+  Exposure.prototype.isShow = function(){
+    var windowHeight = $(window).height(),
+        scrollTop = $(window).scrollTop(),
+        offsetTop = this.$target.offset().top,
+        nodeHeight = this.$target.height();
+    if(windowHeight + scrollTop > offsetTop && scrollTop < nodeHeight + offsetTop){
+      return true;
+    }else {
+      return false;
+    }
+  };
+ 
   return {
     init:function($targets,callback){
       $targets.each(function(idx,target){
         new Exposure($(target),callback);
       })
     },
-    one:function($targets,callback){
-      
+    one:function($targets,callback){ 
+      $targets.each(function(idx,target){
+        new Exposure($(target),callback,false);
+      })     
     }
   }
 })();
